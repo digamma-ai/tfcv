@@ -44,15 +44,15 @@ def tf_deriv(batch, ksize=3, padding='SAME'):
     try:
         n_ch = batch.shape[3]
     except:
-        n_ch = tf.shape(batch)[3]
-    gx = tf_kernel_prep_3d([[ 0, 0, 0],
-                            [-1, 0, 1],
-                            [ 0, 0, 0]], n_ch)    
-    gy = tf_kernel_prep_3d([[ 0,-1, 0],
-                            [ 0, 0, 0],
-                            [ 0, 1, 0]], n_ch)   
-    kernel = tf.constant(np.stack([gx, gy], axis=-1).astype(batch.dtype), dtype = np.float32)
-    return tf.nn.depthwise_conv2d(batch, kernel, [1, 1, 1, 1], padding=padding)
+        n_ch = int(batch.get_shape()[3])
+    gx = tf_kernel_prep_3d(np.array([[ 0, 0, 0],
+                                     [-1, 0, 1],
+                                     [ 0, 0, 0]]), n_ch)    
+    gy = tf_kernel_prep_3d(np.array([[ 0,-1, 0],
+                                     [ 0, 0, 0],
+                                     [ 0, 1, 0]]), n_ch)   
+    kernel = tf.constant(np.stack([gx, gy], axis=-1), name="DerivKernel", dtype = np.float32)
+    return tf.nn.depthwise_conv2d(batch, kernel, [1, 1, 1, 1], padding=padding, name="GradXY")
     
 
 def tf_sobel(batch, ksize=3, padding='SAME'):
